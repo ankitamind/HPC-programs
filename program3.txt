@@ -1,0 +1,62 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <omp.h>
+using namespace std;
+
+int main() {
+    int n;
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    cout << "Enter " << n << " elements:\n";
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    int minVal = INT_MAX;
+    int maxVal = INT_MIN;
+    int sum = 0;
+    double avg = 0.0;
+
+    // Parallel Min Reduction
+    #pragma omp parallel for reduction(min:minVal)
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < minVal)
+            minVal = arr[i];
+    }
+
+    // Parallel Max Reduction
+    #pragma omp parallel for reduction(max:maxVal)
+    for (int i = 0; i < n; i++) {
+        if (arr[i] > maxVal)
+            maxVal = arr[i];
+    }
+
+    // Parallel Sum Reduction
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < n; i++) {
+        sum += arr[i];
+    }
+
+    avg = (double)sum / n;
+
+    // Output
+    cout << "\n--- Parallel Reduction Results ---\n";
+    cout << "Minimum: " << minVal << endl;
+    cout << "Maximum: " << maxVal << endl;
+    cout << "Sum:     " << sum << endl;
+    cout << "Average: " << avg << endl;
+
+    return 0;
+}
+//output
+Enter number of elements: 5
+Enter 5 elements:
+12 90 50 30 10
+
+--- Parallel Reduction Results ---
+Minimum: 10
+Maximum: 90
+Sum:     192
+Average: 38.4

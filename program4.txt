@@ -1,0 +1,92 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
+using namespace std;
+
+void vectorAddition() {
+    int n;
+    cout << "\n--- Vector Addition ---\n";
+    cout << "Enter size of vectors: ";
+    cin >> n;
+
+    vector<int> A(n), B(n), C(n);
+
+    cout << "Enter elements of vector A:\n";
+    for (int i = 0; i < n; i++) cin >> A[i];
+
+    cout << "Enter elements of vector B:\n";
+    for (int i = 0; i < n; i++) cin >> B[i];
+
+    // Parallel Vector Addition
+    #pragma omp parallel for
+    for (int i = 0; i < n; i++)
+        C[i] = A[i] + B[i];
+
+    cout << "Result of A + B:\n";
+    for (int i = 0; i < n; i++)
+        cout << C[i] << " ";
+    cout << "\n";
+}
+
+void matrixMultiplication() {
+    int n;
+    cout << "\n--- Matrix Multiplication ---\n";
+    cout << "Enter size of NxN matrix: ";
+    cin >> n;
+
+    vector<vector<int>> A(n, vector<int>(n));
+    vector<vector<int>> B(n, vector<int>(n));
+    vector<vector<int>> C(n, vector<int>(n, 0));
+
+    cout << "Enter matrix A:\n";
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            cin >> A[i][j];
+
+    cout << "Enter matrix B:\n";
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            cin >> B[i][j];
+
+    // Parallel Matrix Multiplication
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            for (int k = 0; k < n; k++)
+                C[i][j] += A[i][k] * B[k][j];
+
+    cout << "Result of A x B:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            cout << C[i][j] << " ";
+        cout << "\n";
+    }
+}
+
+int main() {
+    vectorAddition();
+    matrixMultiplication();
+    return 0;
+}
+
+//output
+--- Vector Addition ---
+Enter size of vectors: 4
+Enter elements of vector A:
+1 2 3 4
+Enter elements of vector B:
+5 6 7 8
+Result of A + B:
+6 8 10 12
+
+--- Matrix Multiplication ---
+Enter size of NxN matrix: 2
+Enter matrix A:
+1 2
+3 4
+Enter matrix B:
+5 6
+7 8
+Result of A x B:
+19 22
+43 50
